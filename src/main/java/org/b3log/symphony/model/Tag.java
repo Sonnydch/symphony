@@ -47,6 +47,8 @@ public final class Tag {
      */
     public static final String TAG = "tag";
 
+    public static final String TIME = "time";
+
     /**
      * Tags.
      */

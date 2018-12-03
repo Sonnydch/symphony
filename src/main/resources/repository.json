@@ -1141,6 +1141,36 @@
       ]
     },
     {
+      "name": "tag_time",
+      "description": "标签 - 时间表",
+      "keys": [
+        {
+          "name": "oId",
+          "type": "String",
+          "length": 19,
+          "description": "主键"
+        },
+        {
+          "name": "tag_oId",
+          "type": "String",
+          "length": 19,
+          "description": "标签 id"
+        },
+        {
+          "name": "time",
+          "type": "String",
+          "length": 19,
+          "description": "标签被引用时间"
+        },
+        {
+          "name": "tagTitle",
+          "type": "String",
+          "length": 19,
+          "description": "标签被引用时间"
+        }
+      ]
+    },
+    {
       "name": "option",
       "description": "参数配置表",
       "keys": [

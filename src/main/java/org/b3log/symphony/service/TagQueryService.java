@@ -44,6 +44,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -66,6 +67,13 @@ public class TagQueryService {
      */
     @Inject
     private TagRepository tagRepository;
+
+    /**
+     * Tag time repository
+     */
+    @Inject
+    private TagTimeRepository tagTimeRepository;
+
 
     /**
      * User-Tag repository.
@@ -427,6 +435,31 @@ public class TagQueryService {
         }
     }
 
+    public List<JSONObject> getHotTagsByTime(final int day) throws ServiceException{
+
+
+        long period = TimeUnit.DAYS.toMillis(day);
+
+        long millis = System.currentTimeMillis();
+
+        final List<Filter> andFilters = new ArrayList<>();
+        andFilters.add(new PropertyFilter(Tag.TIME, FilterOperator.GREATER_THAN_OR_EQUAL, millis-period));
+        andFilters.add(new PropertyFilter(Tag.TIME, FilterOperator.LESS_THAN_OR_EQUAL, millis));
+
+        final Query query = new Query().setCurrentPageNum(1).setPageSize(100).setPageCount(1).
+                setFilter(new CompositeFilter(CompositeFilterOperator.AND, andFilters)).
+                addSort(Keys.OBJECT_ID, SortDirection.ASCENDING);
+
+        try {
+            final JSONObject result = tagTimeRepository.get(query);
+            final List<JSONObject> ret = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
+            return ret;
+        } catch (final RepositoryException e) {
+            LOGGER.log(Level.ERROR, "Gets hot tags failed");
+            throw new ServiceException(e);
+        }
+    }
+
     /**
      * Gets the new (sort by oId descending) tags.
      *
@@ -470,6 +503,21 @@ public class TagQueryService {
      */
     public List<JSONObject> getTags(final int fetchSize) {
         return tagCache.getIconTags(fetchSize);
+    }
+
+
+    /**
+     * Gets the most referenced tags.
+     * @param size
+     * @return
+     * @throws ServiceException
+     */
+    public List<JSONObject> getMostReferencedTags(final int size) throws ServiceException{
+        try {
+            return tagRepository.getMostUsedTags(size);
+        } catch (RepositoryException e) {
+            throw new ServiceException(e);
+        }
     }
 
     /**

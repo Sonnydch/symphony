@@ -532,7 +532,12 @@ public final class Common {
     public static final String SIDE_TAGS = "sideTags";
 
     /**
-     * Key of navigation trend tags.
+     * Key of most referenced tags
+     */
+    public static final String MOST_REFERENCED_TAGS = "mostReferencedTags";
+
+    /**
+     * Key of navigation trend tags.MOST_REFERENCED_TAGS
      */
     public static final String NAV_TREND_TAGS = "navTrendTags";
 

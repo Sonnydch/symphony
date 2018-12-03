@@ -246,7 +246,7 @@ public class StatisticProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
-
+        dataModelService.fillMostReferencedTags(dataModel);
         dataModel.put(Common.ONLINE_VISITOR_CNT, optionQueryService.getOnlineVisitorCount());
         dataModel.put(Common.ONLINE_MEMBER_CNT, optionQueryService.getOnlineMemberCount());
 

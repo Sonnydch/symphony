@@ -25,6 +25,14 @@
         </@head>
         <link rel="stylesheet" href="${staticServePath}/css/index.css?${staticResourceVersion}" />
         <link rel="canonical" href="${servePath}/statistic">
+            <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+
+            <style>
+                svg{
+                   width: 700px;
+                    height: 600px;
+                }
+            </style>
     </head>
     <body>
         <#include "header.ftl">
@@ -40,10 +48,16 @@
                         <div id="chart30" style="height:400px"></div>
                         <br><br>
                         <div id="chartHistory" style="height:400px"></div>
+                            <div id="bubbleChart" style="height: 600px"></div>
                         <hr>
                         <ul>
                             <li>
                                 <span class="ft-gray">${onlineVisitorCountLabel}</span> ${onlineVisitorCnt?c}
+                            </li>
+                            <li>
+                            <#list mostReferencedTags as tag>
+                                <span class="ft-gray">${mostReferencedTagLabel}</span> ${tag.tagTitle} | ${tag.tagReferenceCount}
+                            </#list>
                             </li>
                             <li>
                                 <span class="ft-gray">${maxOnlineVisitorCountLabel}</span> ${statistic.statisticMaxOnlineVisitorCount?c} &nbsp;
@@ -73,6 +87,105 @@
             </div>
         </div>
         <#include "footer.ftl">
+
+        <script type="text/javascript">
+
+            var names = [
+                <#list mostReferencedTags as tag>
+                    '${tag.tagTitle}'<#if tag?has_next>,</#if>
+                </#list>
+            ];
+            var counts = [
+                <#list mostReferencedTags as tag>
+                    ${tag.tagReferenceCount} <#if tag?has_next>,</#if>
+                </#list>
+            ];
+
+
+            dataset = {
+                "children":[]
+            };
+
+            var ch = [];
+
+            for(var i=0;i<names.length;i++){
+                var temp = {};
+                temp.Name = names[i];
+                temp.Count = counts[i];
+                ch.push(temp);
+            }
+            dataset.children = ch;
+
+            var diameter = 600;
+            var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+            var bubble = d3.pack(dataset)
+                    .size([diameter, diameter])
+                    .padding(1.5);
+
+            var svg = d3.select("#bubbleChart").append("svg")
+                    .attr("width", diameter+"px")
+                    .attr("height", diameter+"px")
+                    .attr("class", "bubble_");
+
+            var nodes = d3.hierarchy(dataset)
+                    .sum(function(d) { return d.Count; });
+
+            var node = svg.selectAll(".node")
+                    .data(bubble(nodes).descendants())
+                    .enter()
+                    .filter(function(d){
+                        return  !d.children
+                    })
+                    .append("g")
+                    .attr("class", "node")
+                    .attr("transform", function(d) {
+                        return "translate(" + d.x + "," + d.y + ")";
+                    });
+
+            node.append("title")
+                    .text(function(d) {
+                        return d.Name + ": " + d.Count;
+                    });
+
+            node.append("circle")
+                    .attr("r", function(d) {
+                        return d.r;
+                    })
+                    .style("fill", function(d,i) {
+                        return color(i);
+                    });
+
+            node.append("text")
+                    .attr("dy", ".2em")
+                    .style("text-anchor", "middle")
+                    .text(function(d) {
+                        return d.data.Name.substring(0, d.r / 3);
+                    })
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", function(d){
+                        return d.r/5;
+                    })
+                    .attr("fill", "white");
+
+            node.append("text")
+                    .attr("dy", "1.3em")
+                    .style("text-anchor", "middle")
+                    .text(function(d) {
+                        return d.data.Count;
+                    })
+                    .attr("font-family",  "Gill Sans", "Gill Sans MT")
+                    .attr("font-size", function(d){
+                        return d.r/5;
+                    })
+                    .attr("fill", "white");
+
+            d3.select(self.frameElement)
+                    .style("height", diameter + "px");
+
+
+
+        </script>
 
         <script src="${staticServePath}/js/lib/echarts-2.2.7/echarts.js"></script>
         <script type="text/javascript">
@@ -230,5 +343,8 @@
                     }
             );
         </script>
+
+
+
     </body>
 </html>

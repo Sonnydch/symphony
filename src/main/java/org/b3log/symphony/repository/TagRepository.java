@@ -58,6 +58,9 @@ public class TagRepository extends AbstractRepository {
     @Inject
     private TagArticleRepository tagArticleRepository;
 
+    @Inject
+    private TagTimeRepository tagTimeRepository;
+
     /**
      * Public constructor.
      */
@@ -86,6 +89,14 @@ public class TagRepository extends AbstractRepository {
         super.update(id, article);
 
         article.put(Keys.OBJECT_ID, id);
+
+        //add a tag record;
+        final  JSONObject tagTime = new JSONObject();
+        tagTime.put(Tag.TAG+"_"+Keys.OBJECT_ID, id);
+        long ctm = System.currentTimeMillis();
+        tagTime.put(Tag.TIME,ctm+"");
+        tagTime.put(Tag.TAG_TITLE, article.getString(Tag.TAG_TITLE));
+        tagTimeRepository.add(tagTime);
         tagCache.putTag(article);
     }
 

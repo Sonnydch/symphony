@@ -82,6 +82,9 @@ public class TagMgmtService {
     @Inject
     private TagTagRepository tagTagRepository;
 
+    @Inject
+    private TagTimeRepository tagTimeRepository;
+
     /**
      * User-Tag repository.
      */

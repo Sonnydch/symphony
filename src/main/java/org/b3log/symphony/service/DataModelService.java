@@ -21,9 +21,11 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 import org.b3log.latke.model.User;
 import org.b3log.latke.service.LangPropsService;
+import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.service.annotation.Service;
 import org.b3log.latke.util.Locales;
 import org.b3log.latke.util.Stopwatchs;
@@ -37,6 +39,7 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Data model service.
@@ -237,6 +240,45 @@ public class DataModelService {
         } finally {
             Stopwatchs.end();
         }
+    }
+
+    public void fillMostReferencedTags(final Map<String, Object> dataModel) {
+        Stopwatchs.start("Fills most referenced tags");
+        try{
+
+            List<JSONObject> mrts = tagQueryService.getHotTagsByTime(14);
+                    //tagQueryService.getMostReferencedTags(10);
+            List<String> tags = new ArrayList<>();
+            for (JSONObject object : mrts){
+                tags.add(object.getString(Tag.TAG_TITLE));
+            }
+            List<String> distinctTags = tags.stream().distinct().collect(Collectors.toList());
+
+            Map<String, Integer> tagCount = new HashMap<>();
+
+            for (String tag : distinctTags){
+                long count = tags.stream().filter(t -> tag.equals(t)).count();
+
+                tagCount.put(tag, (int)count);
+            }
+
+            List<JSONObject> toShow = new ArrayList<>();
+
+            for (String tag : distinctTags){
+                JSONObject object = new JSONObject();
+                object.put(Tag.TAG_TITLE, tag);
+                object.put(Tag.TAG_REFERENCE_CNT, tagCount.get(tag));
+                toShow.add(object);
+            }
+
+            LOGGER.info(mrts.toString());
+            dataModel.put(Common.MOST_REFERENCED_TAGS, toShow);
+        } catch (ServiceException e) {
+            LOGGER.log(Level.ERROR, "fillMostReferencedTags failed", e);
+        } finally {
+            Stopwatchs.end();
+        }
+
     }
 
     /**
