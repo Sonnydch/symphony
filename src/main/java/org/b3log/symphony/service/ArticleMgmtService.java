@@ -104,6 +104,9 @@ public class ArticleMgmtService {
     @Inject
     private TagArticleRepository tagArticleRepository;
 
+    @Inject
+    private TagTimeRepository tagTimeRepository;
+
     /**
      * User repository.
      */
@@ -1675,6 +1678,16 @@ public class ArticleMgmtService {
 
                 userTagType = Tag.TAG_TYPE_C_ARTICLE;
             }
+
+            tag = tagRepository.get(tagId);
+            //add a tag record;
+            final  JSONObject tagTime = new JSONObject();
+            tagTime.put(Tag.TAG+"_"+Keys.OBJECT_ID, tagId);
+            long ctm = System.currentTimeMillis();
+            tagTime.put(Tag.TIME,ctm+"");
+            tagTime.put(Tag.TAG_TITLE, tag.getString(Tag.TAG_TITLE));
+            tagTimeRepository.add(tagTime);
+
 
             // Tag-Article relation
             final JSONObject tagArticleRelation = new JSONObject();
