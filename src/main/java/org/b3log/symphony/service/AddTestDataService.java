@@ -195,4 +195,45 @@ public class AddTestDataService  {
         articleMgmtService.addArticle(article);
 
     }
+
+
+    public String addUser(String userName) throws RepositoryException, ServiceException {
+
+        // Init new user
+        final JSONObject user = new JSONObject();
+        user.put(User.USER_EMAIL, userName+UserExt.USER_BUILTIN_EMAIL_SUFFIX);
+        user.put(User.USER_NAME, userName);
+        user.put(User.USER_PASSWORD, DigestUtils.md5Hex(String.valueOf(123456)));
+        user.put(UserExt.USER_LANGUAGE, "en_US");
+        user.put(UserExt.USER_GUIDE_STEP, UserExt.USER_GUIDE_STEP_FIN);
+        user.put(User.USER_ROLE, Role.ROLE_ID_C_REGULAR);
+        user.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
+        final String userId = userMgmtService.addUser(user);
+
+        return userId;
+    }
+
+    public void addTag(String tagName, String userId) throws RepositoryException, ServiceException {
+
+        if (null == tagRepository.getByTitle(tagName)){
+
+            String tagTitle = tagName;
+            String tagId = tagMgmtService.addTag(userId, tagTitle);
+            JSONObject tag = tagRepository.get(tagId);
+            tag.put(Tag.TAG_URI, "B3log");
+            tag.put(Tag.TAG_ICON_PATH, "b3log.png");
+            tag.put(Tag.TAG_DESCRIPTION, tagName+" is a new tag"
+            );
+
+            tagMgmtService.updateTag(tagId, tag);
+        }
+    }
+
+    public void addArticle(JSONObject article, String userId) throws  RepositoryException, ServiceException{
+
+        article.put(Article.ARTICLE_EDITOR_TYPE, 0);
+        article.put(Article.ARTICLE_AUTHOR_ID, userId);
+
+        articleMgmtService.addArticle(article);
+    }
 }

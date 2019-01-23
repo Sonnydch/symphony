@@ -115,6 +115,98 @@ var Verify = {
             });
         }
     },
+
+    /**
+     * @description TestData
+     */
+    testdata: function () {
+
+        // jquery extend function
+        $.extend(
+            {
+                redirectPost: function(location, args)
+                {
+                    var form = $('<form></form>');
+                    form.attr("method", "post");
+                    form.attr("action", location);
+
+                    $.each( args, function( key, value ) {
+                        var field = $('<input></input>');
+
+                        field.attr("type", "hidden");
+                        field.attr("name", key);
+                        field.attr("value", value);
+
+                        form.append(field);
+                    });
+                    $(form).appendTo('body').submit();
+                }
+            });
+
+        var requestJSONObject = {
+            articleTitle: $("#articleTitle").val(),
+            articleContent: $("#articleContent").val(),
+            tag: $("#tag").val(),
+            author: $("#author").val(),
+            amount: $("#amount").val(),
+            referral: sessionStorage.r || ''
+        };
+
+
+        var redirect = Label.servePath + "/testdataUpload";
+        $.redirectPost(redirect, {reqJson: JSON.stringify(requestJSONObject)});
+
+    },
+
+    /**
+     * @description Test Data Submit
+     */
+    testdatasubmit: function () {
+
+        var amountId = "#amountId0";
+        var titleId = "#articleTitle";
+        var contentId = "#articleContent";
+        var tagId = "#tag";
+        var authorId = "#author";
+
+        var amount = $(amountId).val();
+
+        var articles = [];
+        for (var i=0;i<amount;i++){
+
+            var article = {
+                articleTitle: $(titleId+i).val(),
+                articleContent: $(contentId+i).val(),
+                tag: $(tagId+i).val(),
+                author: $(authorId+i).val(),
+                referral: sessionStorage.r || ''
+            }
+
+            articles.push(article);
+        }
+
+        var requestJSONObject = {
+            articles: articles
+        };
+
+        $.ajax({
+            url: Label.servePath + "/submitdata",
+            type: "POST",
+            cache: false,
+            data: JSON.stringify(requestJSONObject),
+            success: function (result, textStatus) {
+                if (result.sc) {
+                    window.location.href = Label.servePath;
+                } else {
+                    console.log("fail")
+                }
+            }
+        });
+
+
+
+    },
+
     /**
      * @description Register Step 2
      */
