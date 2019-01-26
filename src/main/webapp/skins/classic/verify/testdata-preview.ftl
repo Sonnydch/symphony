@@ -30,10 +30,9 @@
 <body>
 <#include "../header.ftl">
 <div class="main">
-    <div class="wrapper">
             <#list articles as article>
-            <div class="form">
-                <input id="amountId${article_index}" type="hidden" value="${article.amount}"></div>
+            <div class="form wrapper">
+                <input id="amountId${article_index}" type="hidden" value="${article.amount}">
                 <div class="module-header">
                     <h2>Test Data article</h2>
                 </div>
@@ -58,11 +57,12 @@
                 <div class="input-wrap">
                     <input id="author${article_index}" type="text"  placeholder="" value="${article.author}" />
                 </div>
-
             </div>
             </#list>
 
-            <button class="green" onclick="Verify.testdatasubmit()">Go</button>
+                <div class="wrapper" style=" display: flex; align-items: center; justify-content: center;">
+                    <button class="green center" onclick="Verify.testdatasubmit()">Go!</button>
+                </div>
 
     </div>
 </div>
